@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Heaven of Munroe - Kayaking & Homestay in Kerala Backwaters | Munroe Island Tourism</title>
+    <meta name="description" content="Experience authentic Kerala backwaters at Heaven of Munroe. Kayaking adventures, traditional homestay, canal boating & houseboat rides in pristine Munroe Island. Book your backwater escape today.">
+    <meta name="keywords" content="Munroe Island kayaking, Munroe Island homestay booking, Munroe Island canoe ride, Munroe Island houseboat stay, Munroe Island canal cruise, Munroe Island tourism activities, things to do in Munroe Island, Munroe Island backwater boating, Munroe Island food experience">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Heaven of Munroe">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Heaven of Munroe">
+    
+    <!-- PWA Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/images/logoon.png">
+    <link rel="apple-touch-icon" href="/images/logoon.png">
+    <link rel="shortcut icon" href="/images/logoon.png">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Heaven of Munroe - Kayaking & Homestay in Kerala Backwaters">
+    <meta property="og:description" content="Experience authentic Kerala backwaters at Heaven of Munroe. Kayaking adventures, traditional homestay, canal boating & houseboat rides in pristine Munroe Island.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration - Early registration for faster PWA readiness -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        // Register service worker immediately for faster PWA install prompt
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      }
+    </script>
+  </body>
+</html>

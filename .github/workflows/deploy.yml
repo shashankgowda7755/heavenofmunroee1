@@ -1,0 +1,78 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      ORG_ID: ${{ secrets.ORG_ID }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Validate secrets present (non-blocking)
+      run: |
+        missing=false
+        [ -z "$VERCEL_TOKEN" ] && echo "::warning::Missing VERCEL_TOKEN" && missing=true
+        [ -z "$ORG_ID" ] && echo "::warning::Missing ORG_ID" && missing=true
+        [ -z "$PROJECT_ID" ] && echo "::warning::Missing PROJECT_ID" && missing=true
+        if [ "$missing" = "true" ]; then
+          echo "⚠️ Vercel secrets missing. Deployment step will be skipped."
+        else
+          echo "✅ Vercel secrets detected."
+        fi
+
+    - name: Install dependencies
+      run: npm ci --ignore-scripts
+      
+    - name: Build client
+      run: npm run vercel-build
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Deploy to Vercel
+      if: ${{ env.VERCEL_TOKEN != '' && env.ORG_ID != '' && env.PROJECT_ID != '' }}
+      uses: vercel/action@v1
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.ORG_ID }}
+        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-args: '--prod'
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        ORG_ID: ${{ secrets.ORG_ID }}
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        
+    - name: Deploy to Railway (Alternative)
+      if: ${{ failure() && env.RAILWAY_TOKEN != '' }}
+      run: |
+        npm install -g @railway/cli
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway up
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi
