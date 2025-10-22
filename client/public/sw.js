@@ -1,10 +1,11 @@
-const CACHE_NAME = 'heaven-of-munroe-v2';
-const STATIC_CACHE = 'static-v2';
-const IMAGE_CACHE = 'images-v2';
-const API_CACHE = 'api-v2';
+const CACHE_NAME = 'heaven-of-munroe-v3';
+const STATIC_CACHE = 'static-v3';
+const IMAGE_CACHE = 'images-v3';
+const API_CACHE = 'api-v3';
 
 const urlsToCache = [
   '/',
+  '/index.html',
   '/inquiry',
   '/manifest.json',
   '/images/logoon.png'
@@ -20,10 +21,29 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline with improved strategies
+// Fetch event - improved strategies to avoid blank screens
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Handle navigations (HTML) with network-first to avoid serving stale index.html
+  const acceptsHtml = request.headers.get('Accept')?.includes('text/html');
+  if (request.mode === 'navigate' || acceptsHtml) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Optionally cache fresh HTML for offline fallback
+          const clone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cached index.html when offline
+          return caches.match('/index.html') || caches.match(request);
+        })
+    );
+    return;
+  }
 
   // Handle API requests with network-first strategy
   if (url.pathname.startsWith('/api/')) {
@@ -91,7 +111,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== CACHE_NAME && !cacheName.endsWith('v3')) {
             return caches.delete(cacheName);
           }
         })
@@ -108,9 +128,7 @@ self.addEventListener('sync', (event) => {
 });
 
 function doBackgroundSync() {
-  // Handle offline form submissions when back online
   return new Promise((resolve) => {
-    // Implementation for syncing offline data
     console.log('Background sync triggered');
     resolve();
   });
