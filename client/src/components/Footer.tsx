@@ -80,6 +80,11 @@ export default function Footer() {
           <p className="text-background/60 text-sm">
             © 2024 Heaven of Munroe. All rights reserved.
           </p>
+          <p className="text-background/60 text-sm mt-2">
+            <a href="/privacy" className="hover:text-background underline" data-testid="footer-privacy-link">Privacy Policy</a>
+            <span className="mx-2">|</span>
+            <a href="/terms" className="hover:text-background underline" data-testid="footer-terms-link">Terms of Service</a>
+          </p>
         </div>
       </div>
     </footer>

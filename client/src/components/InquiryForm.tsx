@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +22,7 @@ const inquirySchema = z.object({
   preferredDate: z.string().min(1, "Please select a date"),
   preferredTime: z.string().min(1, "Please select a time"),
   specialRequests: z.string().optional(),
+  consent: z.literal(true, { errorMap: () => ({ message: "Please confirm to continue" }) }),
 });
 
 type InquiryFormData = z.infer<typeof inquirySchema>;
@@ -69,6 +71,7 @@ export default function InquiryForm({ selectedPackage, onClose, onSuccess }: Inq
       preferredDate: "",
       preferredTime: "",
       specialRequests: "",
+      consent: false as unknown as true,
     },
   });
 
@@ -111,13 +114,18 @@ export default function InquiryForm({ selectedPackage, onClose, onSuccess }: Inq
   });
 
   const onSubmit = (data: InquiryFormData) => {
-    createInquiry.mutate(data);
+    // consent is a client-side gate only; do not send it to the API
+    const { consent: _consent, ...payload } = data;
+    createInquiry.mutate(payload as InquiryFormData);
   };
 
   const handlePayment = () => {
     const selectedPkg = packages.find(pkg => pkg.id === form.getValues("selectedPackage"));
     const totalAmount = selectedPkg ? selectedPkg.price * form.getValues("numberOfGuests") : 0;
     
+    // LEGAL (legal-launch-audit check 5): when the payment gateway (Razorpay / PhonePe) goes
+    // here, show the total price, the refund policy and the cancellation policy next to the
+    // pay button, before the guest pays. Link /terms#cancellation-and-refunds.
     // This will be replaced with PhonePe integration
     toast({
       title: "Payment Integration Coming Soon",
@@ -373,6 +381,30 @@ export default function InquiryForm({ selectedPackage, onClose, onSuccess }: Inq
                       data-testid="input-special-requests"
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="consent"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-start space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        id="consent"
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
+                        data-testid="checkbox-consent"
+                      />
+                    </FormControl>
+                    <label htmlFor="consent" className="text-sm leading-snug">
+                      I am 18 or older and agree to the{" "}
+                      <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">privacy policy</a>.
+                    </label>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

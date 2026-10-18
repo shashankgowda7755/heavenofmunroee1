@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
   "installCommand": "npm ci --ignore-scripts",
@@ -12,7 +11,9 @@
     { "source": "/manifest.json", "destination": "/manifest.json" },
     { "source": "/sw.js", "destination": "/sw.js" },
     { "source": "/", "destination": "/index.html" },
-    { "source": "/inquiry", "destination": "/index.html" }
+    { "source": "/inquiry", "destination": "/index.html" },
+    { "source": "/privacy", "destination": "/index.html" },
+    { "source": "/terms", "destination": "/index.html" }
   ],
   "headers": [
     {
